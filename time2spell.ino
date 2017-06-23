@@ -26,7 +26,7 @@
 #define btnLEFT   3
 #define btnSELECT 4
 #define btnNONE   5
-int lcd_key     = 0;
+int lcd_key     = 5;
 int adc_key_in  = 0;
 
 // inicializar libreria para display LCD con los pines de Arduino
@@ -56,16 +56,23 @@ int time2change = 0;
 int progressBar = 0; //Q chars
 String txtMsg = "";
 int aux = 0;
+int startFlag = 0 ;
 
 void setup() {
   // inicializar display LCD en 16 columnas, 2 filas
   lcd.begin(16, 2);
-  lcd.setCursor(0, 0);
-  lcd.print("   time2spell  ");
-  analogWrite(10, 128); //set backlight
+  analogWrite(10, 100); //set backlight
 }
 
 void loop() {
+  if (startFlag == 0) {
+    showMenu();
+  } else {
+    showTime();
+  }
+}
+void showTime() {
+
   timeNow = millis() / 60000; // divided by 60000 for convert to minutes. decrease to speed testing
 
   if ( timeNow != timePas ) { //each minute do:
@@ -98,44 +105,53 @@ void loop() {
       delay(100000);
     }
   }
+}
 
-  /*
-    switch (lcd_key)               // depending on which button was pushed, we perform an action
-    {
-    case btnRIGHT:
-  	  {
-        lcd.print("RIGHT    ");
-        break;
-      }
-    case btnLEFT:
-  	  {
-        lcd.print("LEFT   ");
-        break;
-      }
-    case btnUP:
-  	  {
-        lcd.print("UP     ");
-        break;
-      }
-    case btnDOWN:
-  	  {
-        lcd.print("DOWN   ");
-        break;
-      }
-    case btnSELECT:
-  	  {
-        lcd.print("SELECT ");
-        break;
-      }
-  	       case btnNONE:
-       {
-       lcd.print("NONE  ");
-       break;
-       }
+int showMenu() {
+  lcd.setCursor(0, 0);
+  lcd.print("Set Speak Time:");
+  //lcd.setCursor(0, 1);
+  //lcd.print(time2talk);
 
+  while (lcd_key != btnSELECT) {
+    lcd_key = read_LCD_buttons();
+
+    lcd.setCursor(0, 1);
+    lcd.print(time2talk);
+
+    switch (lcd_key) {               // depending on which button was pushed, we perform an action
+      case btnRIGHT: {
+          //lcd.print("RIGHT    ");
+          break;
+        }
+      case btnLEFT: {
+          //lcd.print("LEFT   ");
+          break;
+        }
+      case btnUP: {
+          if (time2talk < 995) {
+            time2talk = time2talk + 5;
+          }
+          break;
+        }
+      case btnDOWN: {
+          if (time2talk > 15) {
+            time2talk = time2talk - 5;
+          }
+          break;
+        }
+      case btnSELECT: {
+          startFlag = 1;
+          lcd.clear();
+          lcd.setCursor(0, 0);
+          lcd.print("   time2spell  ");
+          break;
+        }
     }
-    if (lcd_key != btnNONE) {
-  	lcd.print(adc_key_in);
+
+    if (lcd_key != btnNONE ) {
+      delay(200);
     }
-  */
+  }
+
 }
